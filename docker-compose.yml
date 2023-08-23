@@ -1,57 +1,49 @@
-version: '3.9'
-
 services:
   # uncomment this section and comment out the mysql section to use postgres instead of mysql
   #postgres:
     #restart: unless-stopped
-    #ports:
-      #- ${POSTGRES_PORT}:5432"
     #image: postgres:14
     #hostname: postgres
     #volumes: 
     #  - semaphore-postgres:/var/lib/postgresql/data
     #environment:
-    #  POSTGRES_USER: ${POSTGRES_USER}
-    #  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    #  POSTGRES_DB: ${POSTGRES_DB}
+    #  POSTGRES_USER: semaphore
+    #  POSTGRES_PASSWORD: semaphore
+    #  POSTGRES_DB: semaphore
   # if you wish to use postgres, comment the mysql service section below 
   mysql:
     restart: unless-stopped
-    ports:
-      - "${MYSQL_PORT}:3306"
     image: mysql:8.0
     hostname: mysql
     volumes:
-      - ${DATA_SAVE_PATH}:/var/lib/mysql2
-      - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+      - semaphore-mysql:/var/lib/mysql
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER} 
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-
+      MYSQL_DATABASE: semaphore
+      MYSQL_USER: semaphore
+      MYSQL_PASSWORD: semaphore
   semaphore:
     restart: unless-stopped
     ports:
-      - "${SEMAPHORE_PORT}:3000"
+      - 3000:3000
     image: semaphoreui/semaphore:latest
     environment:
-      SEMAPHORE_DB_USER: ${SEMAPHORE_DB_USER}
-      SEMAPHORE_DB_PASS: ${SEMAPHORE_DB_PASS}
+      SEMAPHORE_DB_USER: semaphore
+      SEMAPHORE_DB_PASS: semaphore
       SEMAPHORE_DB_HOST: mysql # for postgres, change to: postgres
-      SEMAPHORE_DB_PORT: ${SEMAPHORE_DB_PORT} # change to 5432 for postgres
-      SEMAPHORE_DB_DIALECT: mysql
-      SEMAPHORE_DB: ${SEMAPHORE_DB}
-      SEMAPHORE_PLAYBOOK_PATH: ${SEMAPHORE_PLAYBOOK_PATH} 
-      SEMAPHORE_ADMIN_PASSWORD: ${SEMAPHORE_ADMIN_PASSWORD}
-      SEMAPHORE_ADMIN_NAME: ${SEMAPHORE_ADMIN_NAME}
-      SEMAPHORE_ADMIN_EMAIL: ${SEMAPHORE_ADMIN_EMAIL}
-      SEMAPHORE_ADMIN: ${SEMAPHORE_ADMIN_USERNAME}
-      SEMAPHORE_ACCESS_KEY_ENCRYPTION: ${SEMAPHORE_ACCESS_KEY_ENCRYPTION}
-      SEMAPHORE_LDAP_ACTIVATED: ${SEMAPHORE_LDAP_ACTIVATED}  # if you wish to use ldap, set to: 'yes' 
-      SEMAPHORE_LDAP_HOST: ${SEMAPHORE_LDAP_HOST} 
-      SEMAPHORE_LDAP_PORT: ${SEMAPHORE_LDAP_PORT} 
-      SEMAPHORE_LDAP_NEEDTLS: ${SEMAPHORE_LDAP_ENCRYPTION} 
+      SEMAPHORE_DB_PORT: 3306 # change to 5432 for postgres
+      SEMAPHORE_DB_DIALECT: mysql # for postgres, change to: postgres
+      SEMAPHORE_DB: semaphore
+      SEMAPHORE_PLAYBOOK_PATH: /tmp/semaphore/
+      SEMAPHORE_ADMIN_PASSWORD: changeme
+      SEMAPHORE_ADMIN_NAME: admin
+      SEMAPHORE_ADMIN_EMAIL: admin@localhost
+      SEMAPHORE_ADMIN: admin
+      SEMAPHORE_ACCESS_KEY_ENCRYPTION: gs72mPntFATGJs9qK0pQ0rKtfidlexiMjYCH9gWKhTU=
+      SEMAPHORE_LDAP_ACTIVATED: 'no' # if you wish to use ldap, set to: 'yes' 
+      SEMAPHORE_LDAP_HOST: dc01.local.example.com
+      SEMAPHORE_LDAP_PORT: '636'
+      SEMAPHORE_LDAP_NEEDTLS: 'yes'
       SEMAPHORE_LDAP_DN_BIND: 'uid=bind_user,cn=users,cn=accounts,dc=local,dc=shiftsystems,dc=net'
       SEMAPHORE_LDAP_PASSWORD: 'ldap_bind_account_password'
       SEMAPHORE_LDAP_DN_SEARCH: 'dc=local,dc=example,dc=com'
